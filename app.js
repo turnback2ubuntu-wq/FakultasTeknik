@@ -767,7 +767,7 @@ function renderTabScholar(container, data, prodiKey) {
 // 5. Garuda Tab (Paginated)
 function renderTabGaruda(container, data, prodiKey) {
   const list = data.garuda;
-  const filtered = filterList(list, ['Judul', 'Nama Dosen', 'Nama Dosen DTPS', 'Jurnal', 'Nama Jurnal']);
+  const filtered = filterList(list, ['Judul Artikel Ilmiah', 'Judul', 'Nama Dosen', 'Nama Dosen DTPS', 'Jurnal', 'Nama Jurnal', 'SINTA Level']);
   const paginated = paginateList(filtered, state.currentPage, state.pageSize);
 
   container.innerHTML = `
@@ -788,24 +788,33 @@ function renderTabGaruda(container, data, prodiKey) {
             <tr>
               <th style="width:50px;">No</th>
               <th>Judul Artikel Ilmiah</th>
-              <th>Penulis</th>
+              <th style="width:80px;">SINTA</th>
+              <th style="width:120px;">Penulis</th>
               <th style="width:70px;">Tahun</th>
               <th>Nama Jurnal Nasional</th>
-              <th style="width:80px;">Tautan</th>
+              <th style="width:80px;">DOI/Link</th>
             </tr>
           </thead>
           <tbody>
             ${paginated.items.map((item, idx) => {
               const globalIdx = (state.currentPage - 1) * state.pageSize + idx + 1;
+              const sl = item['SINTA Level'] || '-';
+              const slNum = sl.match(/\d+/)?.[0] || '';
+              const slColor = slNum==='1'?'#10b981':slNum==='2'?'#06b6d4':slNum==='3'?'#3b82f6':slNum==='4'?'#f59e0b':'#6b7280';
+              const doi = item['DOI'] || '';
+              const link = item['Link'] || item['link'] || '';
               return `
                 <tr>
                   <td style="text-align:center;">${globalIdx}</td>
-                  <td style="font-weight:600;">${escapeHtml(item['Judul'] || item['judul'] || '-')}</td>
-                  <td style="white-space:nowrap;">${escapeHtml(item['Nama Dosen'] || item['Nama Dosen DTPS'] || item['nama_dosen'] || '-')}</td>
-                  <td style="text-align:center;">${item['Tahun'] || item['tahun'] || '-'}</td>
-                  <td>${escapeHtml(item['Jurnal'] || item['Nama Jurnal'] || item['publikasi'] || '-')}</td>
+                  <td style="font-weight:600;">${escapeHtml(item['Judul Artikel Ilmiah'] || item['Judul'] || item['judul'] || '-')}</td>
                   <td style="text-align:center;">
-                    ${item['Link'] || item['link'] ? `<a href="${item['Link'] || item['link']}" target="_blank" rel="noopener" class="badge badge-emerald">Buka ↗</a>` : '-'}
+                    ${sl !== '-' ? `<span style="font-size:10px; font-weight:700; color:${slColor}; background:${slColor}22; padding:2px 7px; border-radius:10px;">${sl}</span>` : '-'}
+                  </td>
+                  <td style="white-space:nowrap; font-size:12px;">${escapeHtml(item['Nama Dosen'] || item['Nama Dosen DTPS'] || item['nama_dosen'] || '-')}</td>
+                  <td style="text-align:center;">${item['Tahun'] || item['tahun'] || '-'}</td>
+                  <td style="font-size:12px;">${escapeHtml(item['Jurnal'] || item['Nama Jurnal'] || item['publikasi'] || '-')}</td>
+                  <td style="text-align:center;">
+                    ${doi ? `<a href="https://doi.org/${doi}" target="_blank" rel="noopener" class="badge badge-blue">DOI ↗</a>` : link ? `<a href="${link}" target="_blank" rel="noopener" class="badge badge-emerald">Buka ↗</a>` : '-'}
                   </td>
                 </tr>
               `;
@@ -1198,7 +1207,7 @@ function openDosenModal(dosenName, prodiKey) {
       <div id="dgaruda" class="dtab-panel" style="display:none;">
         ${garudaList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada artikel Garuda/SINTA tercatat.</p>' : `
           <div style="display:flex; flex-direction:column; gap:8px;">
-            ${garudaList.map((a, i) => `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid #10b981;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; font-weight:700; color:#10b981; background:#10b98122; padding:2px 7px; border-radius:10px;">🇮🇩 Garuda</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||'-'}</strong></span></div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul Artikel Ilmiah']||a['Judul']||'-')}</div><div style="font-size:11px; color:var(--text-secondary); font-style:italic;">${escapeHtml(a['Nama Jurnal']||a['Jurnal']||'')}</div></div>`).join('')}
+            ${garudaList.map((a, i) => { const sl = a['SINTA Level']||'-'; const slNum = sl.match(/\d+/)?.[0]||''; const slColor = slNum==='1'?'#10b981':slNum==='2'?'#06b6d4':slNum==='3'?'#3b82f6':slNum==='4'?'#f59e0b':'#6b7280'; const slBorder = slNum==='1'?'#10b981':slNum==='2'?'#06b6d4':slNum==='3'?'#3b82f6':slNum==='4'?'#f59e0b':'#10b981'; return `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid ${slBorder};"><div style="display:flex; align-items:center; gap:6px; margin-bottom:5px; flex-wrap:wrap;"><span style="font-size:10px; font-weight:700; color:${slColor}; background:${slColor}22; padding:2px 8px; border-radius:10px;">${sl !== '-' ? sl : '🇮🇩 Garuda'}</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||'-'}</strong></span>${a['DOI']?`<a href="https://doi.org/${a['DOI']}" target="_blank" style="font-size:10px; color:var(--primary-500); text-decoration:none;">🔗 DOI</a>`:''}</div><div style="font-weight:700; margin-bottom:4px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul Artikel Ilmiah']||a['Judul']||'-')}</div><div style="font-size:11px; color:var(--text-secondary); font-style:italic; line-height:1.4;">${escapeHtml(a['Nama Jurnal']||a['Jurnal']||'')}</div></div>`; }).join('')}
           </div>
         `}
       </div>
