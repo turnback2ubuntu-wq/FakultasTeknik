@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Akreditasi DKPS & Rekapitulasi PDDikti - SINTA | Universitas PGRI Ronggolawe Tuban</title>
+  <meta name="description" content="Sistem Informasi dan Dashboard Terpadu Rekapitulasi Data Kuantitatif PDDikti dan SINTA Kemdiktisaintek RI untuk S1 Teknik Informatika dan S1 Teknik Industri UNIROW Tuban.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js local script with CDN fallback -->
+  <script src="chart.umd.min.js"></script>
+  <!-- Data Bundle (Extracted directly from both Master Excel workbooks) -->
+  <script src="spa_data.js"></script>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      
+      <!-- Brand & University Identity -->
+      <div class="brand" onclick="switchProdi('komparasi')">
+        <div class="brand-logo-badge">FT</div>
+        <div class="brand-text">
+          <h1>UNIVERSITAS PGRI RONGGOLAWE</h1>
+          <p>Portal Akreditasi DKPS • PDDikti & SINTA Kemdiktisaintek</p>
+        </div>
+      </div>
+
+      <!-- Center Prodi Switcher Buttons -->
+      <div class="prodi-switcher">
+        <button class="prodi-btn active compare-active" data-prodi="komparasi" onclick="switchProdi('komparasi')">
+          <span>🏢</span> Komparasi FT
+        </button>
+        <button class="prodi-btn" data-prodi="informatika" onclick="switchProdi('informatika')">
+          <span>💻</span> Teknik Informatika
+        </button>
+        <button class="prodi-btn" data-prodi="industri" onclick="switchProdi('industri')">
+          <span>🏭</span> Teknik Industri
+        </button>
+      </div>
+
+      <!-- Right Navigation Actions -->
+      <div class="nav-actions">
+        <!-- Live Quick Search -->
+        <div class="nav-search-wrap">
+          <span class="nav-search-icon">🔍</span>
+          <input type="text" class="nav-search-input" id="global-search" placeholder="Cari dosen, publikasi, MK...">
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button class="icon-btn" id="theme-toggle-btn" title="Ganti Mode Gelap / Terang">
+          ☀️
+        </button>
+
+        <!-- Quick Excel Link -->
+        <a href="REKAP_SEMUA_DATA_PDDIKTI_DAN_SINTA.xlsx" download class="btn-primary-outline" title="Unduh Master Excel Informatika">
+          <span>📊</span> Master Excel IF
+        </a>
+        <a href="Teknik Industri/REKAP_SEMUA_DATA_PDDIKTI_DAN_SINTA.xlsx" download class="btn-primary-outline" style="border-color:rgba(16,185,129,0.4); color:#10b981;" title="Unduh Master Excel Industri">
+          <span>📊</span> Master Excel TI
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Single Page Application Container -->
+  <main class="main-content">
+    <div class="container" id="app-main-content">
+      <!-- Injected dynamically by app.js -->
+    </div>
+  </main>
+
+  <!-- Detail Dossier Modal Dialog -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Dossier Dosen</div>
+        <button class="modal-close-btn" id="modal-close-btn" title="Tutup">✕</button>
+      </div>
+      <div class="modal-body" id="modal-content">
+        <!-- Dynamic content inserted by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal Footer -->
+  <footer class="portal-footer">
+    <div class="container">
+      <p>
+        <strong>Fakultas Teknik — Universitas PGRI Ronggolawe Tuban (UNIROW)</strong><br>
+        Jl. Manunggal No. 61 Tuban, Jawa Timur 62381 • Telp: (0356) 322233 • Fax: (0356) 331578<br>
+        <span style="color:var(--text-muted); font-size:11px;">
+          Sistem Otomasi DKPS Standar LAM INFOKOM, LAM Teknik & BAN-PT • Sumber Data: PDDikti & SINTA Kemdiktisaintek RI (September 2026)
+        </span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

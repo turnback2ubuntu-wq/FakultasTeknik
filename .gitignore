@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py
+*.pyc
+
+# LibreOffice lock files
+.~lock.*
+
+# Large data files
+*.xlsx
+*.docx
+*.doc
+
+# Data directory
+data/
+
+# Python metadata
+build_*.py
+generate_*.py
+scrape_*.py
+run_all_scraper.py
