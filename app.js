@@ -1107,15 +1107,26 @@ function renderTabMahasiswa(container, data, prodiKey) {
 
 function openDosenModal(dosenName, prodiKey) {
   const data = APP_DATA[prodiKey];
-  const sintaInfo = data.dosen_sinta.find(d => (d['Nama Dosen'] || d['nama_dosen'] || '').toLowerCase().includes(dosenName.toLowerCase())) || {};
-  const lengkapInfo = data.dosen_lengkap.find(d => (d['Nama Dosen'] || d['nama_dosen'] || '').toLowerCase().includes(dosenName.toLowerCase())) || {};
 
-  // Find publications
-  const scopusList = data.scopus.filter(d => (d['Nama Dosen'] || d['Penulis DTPS'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
-  const scholarList = data.gscholar.filter(d => (d['Nama Dosen'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
-  const garudaList = data.garuda.filter(d => (d['Nama Dosen'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
-  const penelitianList = (data.penelitian || []).filter(d => (d['Nama Dosen'] || d['Ketua'] || d['Anggota'] || '').toLowerCase().includes(dosenName.toLowerCase()));
-  const pengabdianList = (data.pengabdian || []).filter(d => (d['Nama Dosen'] || d['Ketua'] || d['Anggota'] || '').toLowerCase().includes(dosenName.toLowerCase()));
+  // Extract base name (remove titles/gelar after comma) for flexible matching
+  // "Andy Haryoko, S.T., M.T." -> "andy haryoko"
+  const baseName = dosenName.split(',')[0].toLowerCase().trim();
+
+  // Bidirectional match: pubName contains baseName OR baseName contains pubName
+  function nameMatch(pubNameRaw) {
+    const pubName = (pubNameRaw || '').toLowerCase().trim();
+    return pubName.includes(baseName) || baseName.includes(pubName) || pubName === baseName;
+  }
+
+  const sintaInfo = data.dosen_sinta.find(d => nameMatch(d['Nama Dosen'] || d['nama_dosen'])) || {};
+  const lengkapInfo = data.dosen_lengkap.find(d => nameMatch(d['Nama Dosen'] || d['nama_dosen'])) || {};
+
+  // Find publications using flexible name matching
+  const scopusList = data.scopus.filter(d => nameMatch(d['Nama Dosen'] || d['Penulis DTPS'] || d['Nama Dosen DTPS']));
+  const scholarList = data.gscholar.filter(d => nameMatch(d['Nama Dosen'] || d['Nama Dosen DTPS']));
+  const garudaList = data.garuda.filter(d => nameMatch(d['Nama Dosen'] || d['Nama Dosen DTPS']));
+  const penelitianList = (data.penelitian || []).filter(d => nameMatch(d['Nama Dosen'] || d['Ketua'] || d['Anggota']));
+  const pengabdianList = (data.pengabdian || []).filter(d => nameMatch(d['Nama Dosen'] || d['Ketua'] || d['Anggota']));
 
   const modalOverlay = document.getElementById('modal-overlay');
   const modalTitle = document.getElementById('modal-title');
