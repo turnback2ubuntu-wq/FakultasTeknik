@@ -1104,6 +1104,9 @@ function openDosenModal(dosenName, prodiKey) {
   // Find publications
   const scopusList = data.scopus.filter(d => (d['Nama Dosen'] || d['Penulis DTPS'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
   const scholarList = data.gscholar.filter(d => (d['Nama Dosen'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
+  const garudaList = data.garuda.filter(d => (d['Nama Dosen'] || d['Nama Dosen DTPS'] || '').toLowerCase().includes(dosenName.toLowerCase()));
+  const penelitianList = (data.penelitian || []).filter(d => (d['Nama Dosen'] || d['Ketua'] || d['Anggota'] || '').toLowerCase().includes(dosenName.toLowerCase()));
+  const pengabdianList = (data.pengabdian || []).filter(d => (d['Nama Dosen'] || d['Ketua'] || d['Anggota'] || '').toLowerCase().includes(dosenName.toLowerCase()));
 
   const modalOverlay = document.getElementById('modal-overlay');
   const modalTitle = document.getElementById('modal-title');
@@ -1142,48 +1145,97 @@ function openDosenModal(dosenName, prodiKey) {
     <!-- Metrik SINTA -->
     <div style="margin-bottom:20px;">
       <h4 style="font-size:14px; font-weight:700; margin-bottom:8px; color:var(--primary-500);">📊 Metrik SINTA & Sitasi</h4>
-      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
-        <div style="background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-          <div style="font-size:20px; font-weight:800; color:var(--primary-500);">${sintaInfo['SINTA Overall'] || sintaInfo['Overall Score'] || '0'}</div>
-          <div style="font-size:11px; color:var(--text-muted);">SINTA Overall</div>
+      <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
+        <div style="background:var(--bg-input); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+          <div style="font-size:18px; font-weight:800; color:var(--primary-500);">${sintaInfo['SINTA Overall'] || sintaInfo['Overall Score'] || '0'}</div>
+          <div style="font-size:10px; color:var(--text-muted);">SINTA Overall</div>
         </div>
-        <div style="background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-          <div style="font-size:20px; font-weight:800; color:var(--accent-purple);">${sintaInfo['Scopus Articles'] || (sintaInfo['Scopus (Art/H)'] ? sintaInfo['Scopus (Art/H)'].split('/')[0].trim() : '0')}</div>
-          <div style="font-size:11px; color:var(--text-muted);">Scopus Art.</div>
+        <div style="background:var(--bg-input); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+          <div style="font-size:18px; font-weight:800; color:var(--accent-purple);">${scopusList.length}</div>
+          <div style="font-size:10px; color:var(--text-muted);">Scopus Art.</div>
         </div>
-        <div style="background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-          <div style="font-size:20px; font-weight:800; color:var(--accent-cyan);">${scholarList.length}</div>
-          <div style="font-size:11px; color:var(--text-muted);">Scholar Art.</div>
+        <div style="background:var(--bg-input); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+          <div style="font-size:18px; font-weight:800; color:var(--accent-cyan);">${scholarList.length}</div>
+          <div style="font-size:10px; color:var(--text-muted);">Scholar Art.</div>
         </div>
-        <div style="background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-          <div style="font-size:20px; font-weight:800; color:var(--accent-amber);">${sintaInfo['Scholar Citations'] || (sintaInfo['Scholar (Art/Cit/H)'] ? sintaInfo['Scholar (Art/Cit/H)'].split('/')[1]?.trim() : '0')}</div>
-          <div style="font-size:11px; color:var(--text-muted);">Total Sitasi</div>
+        <div style="background:var(--bg-input); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+          <div style="font-size:18px; font-weight:800; color:var(--accent-emerald);">${garudaList.length}</div>
+          <div style="font-size:10px; color:var(--text-muted);">Garuda Art.</div>
+        </div>
+        <div style="background:var(--bg-input); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+          <div style="font-size:18px; font-weight:800; color:var(--accent-amber);">${sintaInfo['Scholar Citations'] || (sintaInfo['Scholar (Art/Cit/H)'] ? sintaInfo['Scholar (Art/Cit/H)'].split('/')[1]?.trim() : '0')}</div>
+          <div style="font-size:10px; color:var(--text-muted);">Total Sitasi</div>
         </div>
       </div>
     </div>
 
-    <!-- Scopus List -->
+    <!-- Tab Publikasi -->
     <div>
-      <h4 style="font-size:14px; font-weight:700; margin-bottom:8px; color:var(--primary-500);">🌐 Artikel Scopus Terindeks (${scopusList.length})</h4>
-      ${scopusList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted);">Belum ada artikel Scopus tercatat.</p>' : `
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          ${scopusList.map(a => `
-            <div style="background:var(--bg-input); padding:10px 12px; border-radius:var(--radius-sm); font-size:12px;">
-              <div style="font-weight:700; margin-bottom:2px;">${escapeHtml(a['Judul'] || a['Judul Artikel Ilmiah'] || '-')}</div>
-              <div style="display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:11px;">
-                <span class="badge badge-q3">${a['Quartile'] || '-'}</span>
-                <span>Tahun: ${a['Tahun'] || '-'}</span>
-                <span>Sitasi: ${a['Sitasi'] || '0'}</span>
-                <span>${escapeHtml(a['Jurnal'] || a['Nama Jurnal / Prosiding'] || '')}</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `}
+      <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;">
+        <button onclick="dossierTab(this,'dscopus')" class="dtab-btn" style="font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--primary-500); background:var(--primary-500); color:#fff; cursor:pointer; font-weight:600;">🌐 Scopus (${scopusList.length})</button>
+        <button onclick="dossierTab(this,'dscholar')" class="dtab-btn" style="font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-secondary); cursor:pointer; font-weight:600;">📚 Scholar (${scholarList.length})</button>
+        <button onclick="dossierTab(this,'dgaruda')" class="dtab-btn" style="font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-secondary); cursor:pointer; font-weight:600;">🇮🇩 Garuda (${garudaList.length})</button>
+        <button onclick="dossierTab(this,'driset')" class="dtab-btn" style="font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-secondary); cursor:pointer; font-weight:600;">🔬 Riset (${penelitianList.length})</button>
+        <button onclick="dossierTab(this,'dpkm')" class="dtab-btn" style="font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-secondary); cursor:pointer; font-weight:600;">🤝 PkM (${pengabdianList.length})</button>
+      </div>
+
+      <div id="dscopus" class="dtab-panel">
+        ${scopusList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada artikel Scopus tercatat.</p>' : `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${scopusList.map((a, i) => { const q = a['Quartile']||'-'; const qc = q==='Q1'?'#10b981':q==='Q2'?'#06b6d4':q==='Q3'?'#f59e0b':'#6b7280'; return `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid ${qc};"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; font-weight:700; color:${qc}; background:${qc}22; padding:2px 7px; border-radius:10px;">${q}</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||'-'}</strong></span><span style="font-size:10px; color:var(--text-muted);">Sitasi: <strong>${a['Sitasi']||'0'}</strong></span></div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul']||a['Judul Artikel Ilmiah']||'-')}</div><div style="font-size:11px; color:var(--text-secondary); font-style:italic;">${escapeHtml(a['Jurnal']||a['Nama Jurnal / Prosiding']||'')}</div></div>`; }).join('')}
+          </div>
+        `}
+      </div>
+
+      <div id="dscholar" class="dtab-panel" style="display:none;">
+        ${scholarList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada artikel Google Scholar tercatat.</p>' : `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${scholarList.map((a, i) => `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid #06b6d4;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||'-'}</strong></span><span style="font-size:10px; color:#f59e0b;">⭐ Sitasi: <strong>${a['Sitasi']||'0'}</strong></span></div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul Artikel Ilmiah']||a['Judul']||'-')}</div><div style="font-size:11px; color:var(--text-secondary); font-style:italic;">${escapeHtml(a['Jurnal / Penerbit']||a['Jurnal']||'')}</div></div>`).join('')}
+          </div>
+        `}
+      </div>
+
+      <div id="dgaruda" class="dtab-panel" style="display:none;">
+        ${garudaList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada artikel Garuda/SINTA tercatat.</p>' : `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${garudaList.map((a, i) => `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid #10b981;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; font-weight:700; color:#10b981; background:#10b98122; padding:2px 7px; border-radius:10px;">🇮🇩 Garuda</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||'-'}</strong></span></div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul Artikel Ilmiah']||a['Judul']||'-')}</div><div style="font-size:11px; color:var(--text-secondary); font-style:italic;">${escapeHtml(a['Nama Jurnal']||a['Jurnal']||'')}</div></div>`).join('')}
+          </div>
+        `}
+      </div>
+
+      <div id="driset" class="dtab-panel" style="display:none;">
+        ${penelitianList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada data penelitian tercatat.</p>' : `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${penelitianList.map((a, i) => `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid #a855f7;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; font-weight:700; color:#a855f7; background:#a855f722; padding:2px 7px; border-radius:10px;">🔬 Penelitian</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||a['Tahun Pelaksanaan']||'-'}</strong></span>${a['Dana']||a['Sumber Dana']?`<span style="font-size:10px; color:#f59e0b;">💰 ${escapeHtml(a['Dana']||a['Sumber Dana'])}</span>`:''}</div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul']||a['Judul Penelitian']||'-')}</div>${a['Ketua']?`<div style="font-size:11px; color:var(--text-secondary);">Ketua: ${escapeHtml(a['Ketua'])}</div>`:''}</div>`).join('')}
+          </div>
+        `}
+      </div>
+
+      <div id="dpkm" class="dtab-panel" style="display:none;">
+        ${pengabdianList.length === 0 ? '<p style="font-size:12px; color:var(--text-muted); padding:16px; text-align:center;">Belum ada data pengabdian masyarakat tercatat.</p>' : `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${pengabdianList.map((a, i) => `<div style="background:var(--bg-input); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; border-left:3px solid #f59e0b;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:10px; font-weight:700; color:#f59e0b; background:#f59e0b22; padding:2px 7px; border-radius:10px;">🤝 PkM</span><span style="font-size:10px; color:var(--text-muted);">Tahun: <strong>${a['Tahun']||a['Tahun Pelaksanaan']||'-'}</strong></span>${a['Dana']||a['Sumber Dana']?`<span style="font-size:10px; color:#10b981;">💰 ${escapeHtml(a['Dana']||a['Sumber Dana'])}</span>`:''}</div><div style="font-weight:700; margin-bottom:3px; line-height:1.4;">${i+1}. ${escapeHtml(a['Judul']||a['Judul Pengabdian']||'-')}</div>${a['Ketua']?`<div style="font-size:11px; color:var(--text-secondary);">Ketua: ${escapeHtml(a['Ketua'])}</div>`:''}</div>`).join('')}
+          </div>
+        `}
+      </div>
     </div>
   `;
 
   modalOverlay.classList.add('active');
+}
+
+function dossierTab(btn, panelId) {
+  document.querySelectorAll('.dtab-btn').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = 'var(--text-secondary)';
+    b.style.borderColor = 'var(--border-subtle)';
+  });
+  btn.style.background = 'var(--primary-500)';
+  btn.style.color = '#fff';
+  btn.style.borderColor = 'var(--primary-500)';
+  document.querySelectorAll('.dtab-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById(panelId);
+  if (panel) panel.style.display = 'block';
 }
 
 function closeModal() {
